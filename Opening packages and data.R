@@ -32,3 +32,8 @@ isco <- read_dta(file = "ISCO.dta")
 # ISIC (sector) FILE WITH TRUMP TARIFFS 
 isic <- read_dta(file = "ISIC.dta")
 isic_trump <- read_dta(file = "TRUMP_ISIC.dta")
+
+# HS10 data with trade and tariff data 
+
+hs10_trump <- read_dta(file = "did10dig_year.dta")
+
