@@ -9,6 +9,7 @@ library(bookdown)
 library(kableExtra)
 library(ggeffects)
 library(xtable)
+library(concordance)
 
 rm(list=ls()) 
 
