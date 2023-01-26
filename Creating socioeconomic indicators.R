@@ -3,22 +3,19 @@ LFS_1520 <- c("LFS_2015", "LFS_2016", "LFS_2017", "LFS_2018", "LFS_2019", "LFS_2
 for (i in LFS_1520){
   if(i %in% c("LFS_2015", "LFS_2017", "LFS_2018")){
     assign(i, get(i) %>%
-             mutate(across(C3, as.numeric)) %>%             
              mutate(Female = as.numeric(C3 == 2))
     )
   }
   
   if(i %in% c("LFS_2019", "LFS_2020")){
     assign(i, get(i) %>%
-             mutate(across(C03, as.numeric)) %>%
              mutate(Female = as.numeric(C03 == 2))
     )
   }
   
   if(i %in% c("LFS_2016")){
     assign(i, get(i) %>%
-             mutate(across(c3, as.numeric)) %>%             
-             mutate(Female = as.numeric(c3>1))
+             mutate(Female = as.numeric(c3 == 2))
     )
   }
 }
