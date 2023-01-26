@@ -34,6 +34,7 @@ isic <- read_dta(file = "ISIC.dta")
 isic_trump <- read_dta(file = "TRUMP_ISIC.dta")
 
 # HS10 data with trade and tariff data 
-
 hs10_trump <- read_dta(file = "did10dig_year.dta")
 
+# HS6 to ISIC4 
+hs6isic4 <- read_dta(file = "hs6_lines_per_ISIC4.dta")
