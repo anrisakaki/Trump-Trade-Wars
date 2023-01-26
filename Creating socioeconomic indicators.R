@@ -125,5 +125,5 @@ LFS_2020 <- LFS_2020 %>%
 
 for (i in LFS_1520){
   assign(i, get(i) %>% 
-           select(province, district, urban, age, educ, work, ISIC, wage, hours, formal, casual_contract, FDI))
+           select(province, district, urban, age, educ, work, ISIC, wage, hours, formal, casual_contract, FDI, Female))
 }
