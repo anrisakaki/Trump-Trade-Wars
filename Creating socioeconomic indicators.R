@@ -93,7 +93,7 @@ LFS_2019 <- LFS_2019 %>%
   mutate(work = as.numeric(C19 == 1),
          urban = as.numeric(TTNT == 1),
          formal = as.numeric(C46 == 1 & work == 1),
-         casual_contract = (C50A < 4 & work == 1),
+         casual_contract = as.numeric(C50A < 4 & work == 1),
          FDI = as.numeric(C45 == 12 & work == 1)) %>% 
   rename(ISIC = C44C,
          ISCO = C43C,
