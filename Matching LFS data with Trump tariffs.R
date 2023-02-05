@@ -1,25 +1,25 @@
-##################################################
-# MATCHING LFS DATA WITH HS-10 TRUMP TARIFF DATA #
-##################################################
-
-# Converting HS10 into HS6 data 
-HS_trump_17 <- hs10_trump %>% 
-  filter(year == 2017)
-
-HS_trump_18 <- hs10_trump %>% 
-  filter(year == 2018)
-
-HS_trump_19 <- hs10_trump %>% 
-  filter(year == 2019)
-
-# Creating HS6 codes in HS10 data 
-
-HS_1520 <- c("HS_trump_17", "HS_trump_18", "HS_trump_19")
-
-for(i in HS_1520){
-  assign(i, get(i) %>% 
-           mutate(hs6 = substr(hs10,1,6)))
-}
+# ##################################################
+# # MATCHING LFS DATA WITH HS-10 TRUMP TARIFF DATA #
+# ##################################################
+# 
+# # Converting HS10 into HS6 data 
+# HS_trump_17 <- hs10_trump %>% 
+#   filter(year == 2017)
+# 
+# HS_trump_18 <- hs10_trump %>% 
+#   filter(year == 2018)
+# 
+# HS_trump_19 <- hs10_trump %>% 
+#   filter(year == 2019)
+# 
+# # Creating HS6 codes in HS10 data 
+# 
+# HS_1520 <- c("HS_trump_17", "HS_trump_18", "HS_trump_19")
+# 
+# for(i in HS_1520){
+#   assign(i, get(i) %>% 
+#            mutate(hs6 = substr(hs10,1,6)))
+# }
 
 # Cleaning ISIC_Trump file 
 isic_trump_18 <- isic_trump %>% 
@@ -41,6 +41,7 @@ for(i in LFS_1520){
     assign(i, get(i) %>% 
              mutate(treated = 0,
                     product_lines_affected = 0,
-                    share_HS_lines_affected = 0))
+                    share_HS_lines_affected = 0,
+                    nb_of_lines = 0))
   }
 }
