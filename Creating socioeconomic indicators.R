@@ -25,7 +25,8 @@ LFS_2015 <- LFS_2015 %>%
          urban = as.numeric(TTNT == 1),
          formal = as.numeric(C26 == 1 & work == 1),
          casual_contract = as.numeric(C29 < 4),
-         FDI = as.numeric(C24 == 11 & work == 1)) %>% 
+         FDI = as.numeric(C24 == 11 & work == 1),
+         year = 2015) %>% 
   rename(ISIC = C23,
          ISCO = C22,
          district = HUYEN,
@@ -42,7 +43,8 @@ LFS_2016 <- LFS_2016 %>%
          urban = as.numeric(TTNT < 1),
          formal = as.numeric(c26 == 1 & work == 1),
          casual_contract = as.numeric(c29 < 4),
-         FDI = as.numeric(c24 == 11 & work == 1)) %>% 
+         FDI = as.numeric(c24 == 11 & work == 1),
+         year = 2016) %>% 
   rename(ISIC = c23,
          ISCO = c22,
          district = Mahuyen,
@@ -60,7 +62,8 @@ LFS_2017 <- LFS_2017 %>%
          urban = as.numeric(TTNT == 1),
          formal = as.numeric(C28 == 1 & work == 1),
          casual_contract = as.numeric(C31 < 4 & work == 1),
-         FDI = as.numeric(C26 == 11 & work == 1)) %>% 
+         FDI = as.numeric(C26 == 11 & work == 1),
+         year = 2017) %>% 
   rename(ISIC = C25,
          ISCO = C24,
          district = HUYEN,
@@ -77,7 +80,8 @@ LFS_2018 <- LFS_2018 %>%
          urban = as.numeric(TTNT == 1),
          formal = as.numeric(C33 == 1 & work == 1),
          casual_contract = as.numeric(C36 < 4),
-         FDI = as.numeric(C31 == 11 & work == 1)) %>% 
+         FDI = as.numeric(C31 == 11 & work == 1),
+         year = 2018) %>% 
   rename(ISIC = C30C,
          ISCO = C29C,
          district = HUYEN,
@@ -94,7 +98,8 @@ LFS_2019 <- LFS_2019 %>%
          urban = as.numeric(TTNT == 1),
          formal = as.numeric(C46 == 1 & work == 1),
          casual_contract = as.numeric(C50A < 4 & work == 1),
-         FDI = as.numeric(C45 == 12 & work == 1)) %>% 
+         FDI = as.numeric(C45 == 12 & work == 1),
+         year = 2019) %>% 
   rename(ISIC = C44C,
          ISCO = C43C,
          district = MAHUYEN,
@@ -111,7 +116,8 @@ LFS_2020 <- LFS_2020 %>%
          urban = as.numeric(TTNT == 1),
          formal = as.numeric(C47 == 1 & work == 1),
          casual_contract = as.numeric(C50 < 4 & work == 1),
-         FDI = as.numeric(C46 == 12 & work == 1)) %>% 
+         FDI = as.numeric(C46 == 12 & work == 1),
+         year = 2020) %>% 
   rename(ISIC = C45B,
          ISCO = C43B,
          district = MAHUYEN,
@@ -125,5 +131,6 @@ LFS_2020 <- LFS_2020 %>%
 
 for (i in LFS_1520){
   assign(i, get(i) %>% 
-           select(province, district, urban, age, educ, work, ISIC, wage, hours, formal, casual_contract, FDI, Female, month, weight))
+           select(province, district, urban, age, educ, work, ISIC, wage, hours, formal, casual_contract, FDI, Female, year, month, weight) %>% 
+           mutate(year_month = year*100 + month))
 }
