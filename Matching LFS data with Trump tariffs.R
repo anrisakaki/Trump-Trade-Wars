@@ -3,17 +3,8 @@
 ##################################################
 
 # Cleaning ISIC_Trump file 
-isic_trump_18 <- isic_trump %>% 
-  filter(year == 2018) %>% 
-  filter(!is.na(ISIC)) %>% 
-  mutate(treated = as.numeric(tariff_maxCHN > 0))
 
-isic_trump_19 <- isic_trump %>% 
-  filter(year == 2019) %>% 
-  filter(!is.na(ISIC)) %>% 
-  mutate(treated = as.numeric(tariff_maxCHN > 0))
-
-LFS_2018 <- left_join(LFS_2018, isic_trump_18, by =c("ISIC", "month", "year"))
+LFS_2018 <- left_join(LFS_2018, us_chn_tariffs_18, by =c("ISIC", "month"))
 LFS_2019 <- left_join(LFS_2019, isic_trump_19, by = c("ISIC", "month", "year"))
 
 for(i in LFS_1520){
