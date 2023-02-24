@@ -26,17 +26,12 @@ LFS_2018 <- LFS[[4]]
 LFS_2019 <- LFS[[5]]
 LFS_2020 <- LFS[[6]]
 
+# US tariffs 
+us_tariffs <- read_dta(file = "us_import_tariffs.dta")
+
 # ISCO (occupation) SKILL LEVEL FILE 
 isco <- read_dta(file = "ISCO.dta")
 
-# ISIC (sector) FILE WITH TRUMP TARIFFS 
-isic <- read_dta(file = "ISIC.dta")
-isic_trump <- read_dta(file = "TRUMP_ISIC.dta")
-
-tariffs <- read_dta(file = "utah_jazz.dta")
-
-# HS10 data with trade and tariff data 
-hs10_trump <- read_dta(file = "did10dig_year.dta")
-
-# HS6 to ISIC4 
-hs6isic4 <- read_dta(file = "hs6_lines_per_ISIC4.dta")
+# Concordance 
+i4_i3 <- read_dta(file = "Concordance_I4_to_I3.dta")
+hs_i3 <- read_dta(file = "Concordance_HS_to_I3.dta")
