@@ -6,9 +6,7 @@ LFS_2017 <- LFS_2017 %>%
   mutate(across(educ, as.numeric))
 
 LFS_2019 <- LFS_2019 %>% 
-  mutate(treated = ifelse(is.na(treated), 0 , treated),
-         product_lines_affected = ifelse(is.na(product_lines_affected), 0, product_lines_affected),
-         nb_of_lines = ifelse(is.na(nb_of_lines), 0, nb_of_lines))
+  mutate(treated = ifelse(is.na(treated), 0 , treated))
 
 LFS_1719 <- bind_rows(LFS_2017, LFS_2019)
 
@@ -24,7 +22,7 @@ y <- c("formal", "casual_contract", "log(hours)", "log(wage)")
 dummy_models_wcontrols <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ as.factor(treated) + Female + age + age^2 + educ + urban | month + ISIC"))
+  formula <- as.formula(paste(i, "~ as.factor(treated) + Female + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66),
@@ -38,7 +36,7 @@ for(i in y){
 dummy_models_wcontrols_f <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ as.factor(treated) + as.factor(Female) + age + age^2 + educ + urban | month + ISIC"))
+  formula <- as.formula(paste(i, "~ as.factor(treated) + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66 & Female == 1),
@@ -52,7 +50,7 @@ for(i in y){
 dummy_models_wcontrols_m <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ as.factor(treated) + age + age^2 + educ + urban | month + ISIC"))
+  formula <- as.formula(paste(i, "~ as.factor(treated) + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66 & Female == 0),
