@@ -16,13 +16,13 @@ LFS_1819 <- bind_rows(LFS_2018, LFS_2019)
 # TWO-WAY FIXED EFFECTS MODELS #
 ################################
 
-y <- c("formal", "casual_contract", "log(hours)", "log(wage)")
+y <- c("formal", "casual_contract", "work", "log(hours)", "log(wage)")
 
 # 2017 - 2019 
 dummy_models_wcontrols <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ as.factor(treated) + Female + age + age^2 + educ + urban | month^ISIC"))
+  formula <- as.formula(paste(i, "~ i(treated) + Female + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66),
@@ -36,7 +36,7 @@ for(i in y){
 dummy_models_wcontrols_f <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ as.factor(treated) + age + age^2 + educ + urban | month^ISIC"))
+  formula <- as.formula(paste(i, "~ i(treated) + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66 & Female == 1),
@@ -61,133 +61,44 @@ for(i in y){
   
 }
 
-productlines_models_controls <- list()
+tariffmax_models <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ product_lines_affected + as.factor(Female) + age + age^2 + educ + urban | month + ISIC"))
+  formula <- as.formula(paste(i, "~ tariff_max + i(Female) + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66),
                  vcov = ~ISIC,
                  weights = ~weight)
   
-  productlines_models_controls[[i]] <- model
+  tariffmax_models[[i]] <- model
   
 }
 
-productlines_models_controls_f <- list()
+tariffmax_models_f <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ product_lines_affected + age + age^2 + educ + urban | month + ISIC"))
+  formula <- as.formula(paste(i, "~ tariff_max + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 66 & Female == 1),
                  vcov = ~ISIC,
                  weights = ~weight)
   
-  productlines_models_controls_f[[i]] <- model
+  tariffmax_models_f[[i]] <- model
   
 }
 
-nb_lines_affected <- list()
+tariffmax_models_m <- list()
 
 for(i in y){
-  formula <- as.formula(paste(i, "~ nb_of_lines + as.factor(Female) + age + age^2 + educ + urban | month + ISIC"))
-  
-  model <- feols(formula,
-                 subset(LFS_1719, age > 17 & age < 65),
-                 vcov = ~ISIC,
-                 weights = ~weight)
-  
-  nb_lines_affected[[i]] <- model
-  
-}
-
-nb_lines_affected_f <- list()
-
-for(i in y){
-  formula <- as.formula(paste(i, "~ nb_of_lines + age + age^2 + educ + urban | month + ISIC"))
-  
-  model <- feols(formula,
-                 subset(LFS_1719, age > 17 & age < 65 & Female == 1),
-                 vcov = ~ISIC,
-                 weights = ~weight)
-  
-  nb_lines_affected_f[[i]] <- model
-  
-}
-
-nb_lines_affected_m <- list()
-
-for(i in y){
-  formula <- as.formula(paste(i, "~ nb_of_lines + age + age^2 + educ + urban | month + ISIC"))
+  formula <- as.formula(paste(i, "~ tariff_max + age + age^2 + educ + urban | month^ISIC"))
   
   model <- feols(formula,
                  subset(LFS_1719, age > 17 & age < 65 & Female == 0),
                  vcov = ~ISIC,
                  weights = ~weight)
   
-  nb_lines_affected_m[[i]] <- model
+  tariffmax_models_m[[i]] <- model
   
 }
-
-
-
-share_HS_lines_affected <- list()
-
-for(i in y){
-  formula <- as.formula(paste(i, "~ share_HS_lines_affected + age + age^2 + educ + urban | month + ISIC"))
-  
-  model <- feols(formula,
-                 subset(LFS_1719, age > 17 & age < 65),
-                 vcov = ~ISIC,
-                 weights = ~weight)
-  
-  share_HS_lines_affected[[i]] <- model
-  
-}
-
-# 2018 - 2019 
-
-tariff_CHN_1819 <- list()
-
-for(i in y){
-  formula <- as.formula(paste(i, "~ tariff_maxCHN + as.factor(Female) + age + age^2 + educ + urban | month + ISIC"))
-  
-  model <- feols(formula,
-                 subset(LFS_1819, age > 17 & age < 65),
-                 vcov = ~ISIC,
-                 weights = ~weight)
-  
-  tariff_CHN_1819[[i]] <- model
-  
-}
-
-tariff_CHN_1819_f <- list()
-
-for(i in y){
-  formula <- as.formula(paste(i, "~ tariff_maxCHN + age + age^2 + educ + urban | month + ISIC"))
-  
-  model <- feols(formula,
-                 subset(LFS_1819, age > 17 & age < 65 & Female == 1),
-                 vcov = ~ISIC,
-                 weights = ~weight)
-  
-  tariff_CHN_1819_f[[i]] <- model
-  
-}
-
-tariff_CHN_1819_m <- list()
-
-for(i in y){
-  formula <- as.formula(paste(i, "~ tariff_maxCHN + age + age^2 + educ + urban | month + ISIC"))
-  
-  model <- feols(formula,
-                 subset(LFS_1819, age > 17 & age < 65 & Female == 0),
-                 vcov = ~ISIC,
-                 weights = ~weight)
-  
-  tariff_CHN_1819_m[[i]] <- model
-  
-}
-
