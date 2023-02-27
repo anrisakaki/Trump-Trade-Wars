@@ -68,7 +68,7 @@ us_chn_tariffs_1819 <- c("us_chn_tariffs_18", "us_chn_tariffs_19")
 for(i in us_chn_tariffs_1819){
   assign(i, get(i) %>% 
            select(-c(HS6, hs10)) %>% 
-           group_by(month, ISIC) %>% 
+           group_by(effective_mdate, ISIC) %>% 
            distinct() %>% 
            mutate(ISIC = recode(ISIC,
                                 '0111' = "111",
@@ -84,5 +84,5 @@ for(i in us_chn_tariffs_1819){
                                 '0892' = '892',
                                 '0893' = '893',
                                 '0520' = '520',
-                                '0141' = '141'))))
+                                '0141' = '141')))
 }
