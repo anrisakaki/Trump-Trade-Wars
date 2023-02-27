@@ -26,13 +26,9 @@ us_chn_tariffs_19 <- us_tariffs %>%
 #####################################
 # CONVERTING ISIC4 IN LFS TO ISIC 3 #
 #####################################
-trump_tariffs <- c("us_chn_tariffs_18", "us_chn_tariffs_19")
 
-us_chn_tariffs_18$hs10 <- sprintf(fmt = "%-10.0f", us_chn_tariffs_18$hs10)
-us_chn_tariffs_19$hs10 <- sprintf(fmt = "%-10.0f", us_chn_tariffs_19$hs10)
-
-us_chn_tariffs_18$HS6 <- as.numeric(substr(format(us_chn_tariffs_18$hs10, scientific = F), 1, 6))
-us_chn_tariffs_19$HS6 <- as.numeric(substr(format(us_chn_tariffs_19$hs10, scientific = F), 1, 6))
+# 2018 
+us_chn_tariffs_18$HS6 <- as.numeric(substr(trimws(format(us_chn_tariffs_18$hs10, scientific = F)), 1, 6))
 
 HS6_18 <- us_chn_tariffs_18 %>% 
   select(HS6) %>% 
@@ -47,31 +43,22 @@ HS6_ISIC_18 <- HS6_ISIC_18 %>%
 
 HS6_ISIC_18 <- bind_cols(HS6_18, HS6_ISIC_18)
 
-trump_tariffs <- c("us_chn_tariffs_18", "us_chn_tariffs_19")
+us_chn_tariffs_18 <- left_join(us_chn_tariffs_18, HS6_ISIC_18, by = "HS6")
 
-for(i in trump_tariffs){
-  
-  assign(i, get(i) %>% 
-           select(-"hs10"))
-  
-  assign(i, merge(get(i), hs_i3, by = "HS6"))
-  
-  assign(i, get(i) %>%
-           select(tariff_max, tariff_scaled, effective_mdate, month, ISIC, treated) %>%
-           group_by(effective_mdate, ISIC) %>%
-           distinct()) # ISIC in this dataframe is ISIC3
-  
-  assign(i, merge(get(i), i4_i3, by = "ISIC")) %>%
-    group_by(effective_mdate, ISIC4) %>%
-    distinct()
-  
-  assign(i, get(i) %>%
-           rename(ISIC3 = ISIC,
-                  ISIC = ISIC4) %>%
-           mutate(across(month, as.numeric)))
-}
+# 2019 
+us_chn_tariffs_19$HS6 <- as.numeric(substr(trimws(format(us_chn_tariffs_19$hs10, scientific = F)), 1, 6))
 
+HS6_19 <- us_chn_tariffs_19 %>% 
+  select(HS6) %>% 
+  distinct()
 
+HS6_ISIC_19 <- data.frame(concord(sourcevar = HS6_19$HS6,
+                                  origin = "HS6", destination = "ISIC4",
+                                  dest.digit = 4, all = FALSE))
 
+HS6_ISIC_19 <- bind_cols(HS6_19, HS6_ISIC_19)
 
+HS6_ISIC_19 <- HS6_ISIC_19 %>% 
+  rename(ISIC = concord.sourcevar...HS6_19.HS6..origin....HS6...destination....ISIC4...)
 
+us_chn_tariffs_19 <- left_join(us_chn_tariffs_19, HS6_ISIC_19, by = "HS6")
