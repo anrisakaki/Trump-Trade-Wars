@@ -3,11 +3,21 @@
 ##################################################
 
 # 2018 
+LFS_2018 <- LFS_2018 %>% 
+  mutate(across(c(ISIC, month), as.numeric))
+
+us_chn_tariffs_18$ISIC <- as.numeric(us_chn_tariffs_18$ISIC)
+
+us_chn_tariffs_18$month <- as.numeric(us_chn_tariffs_18$month) 
+
+us_chn_tariffs_18 <- us_chn_tariffs_18 %>% 
+  filter(!is.na(ISIC))
 
 LFS_2018 <- left_join(LFS_2018, us_chn_tariffs_18, by =c("ISIC", "month"))
 
 # 2019 
 ## Tariffs in some sectors were raised in September 2019 so it is necessary to match workers to pre-post new tariffs based on month 
+us_chn_tariffs_19$ISIC <- as.numeric(us_chn_tariffs_19$ISIC)
 
 us_chn_tariffs_19_old <- us_chn_tariffs_19 %>% 
   filter(is.na(month)) %>% 
@@ -37,5 +47,3 @@ for(i in LFS_1520){
                     tariff_scaled = 0))
   }
 }
-
-  
