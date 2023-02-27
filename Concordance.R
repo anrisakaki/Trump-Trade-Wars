@@ -35,11 +35,11 @@ HS6_18 <- us_chn_tariffs_18 %>%
   distinct()
 
 HS6_ISIC_18 <- data.frame(concord(sourcevar = HS6_18$HS6,
-        origin = "HS6", destination = "ISIC4",
+        origin = "HS5", destination = "ISIC4",
         dest.digit = 4, all = FALSE))
 
 HS6_ISIC_18 <- HS6_ISIC_18 %>% 
-  rename(ISIC = concord.sourcevar...HS6_18.HS6..origin....HS6...destination....ISIC4...)
+  rename(ISIC = concord.sourcevar...HS6_18.HS6..origin....HS5...destination....ISIC4...)
 
 HS6_ISIC_18 <- bind_cols(HS6_18, HS6_ISIC_18)
 
@@ -53,12 +53,36 @@ HS6_19 <- us_chn_tariffs_19 %>%
   distinct()
 
 HS6_ISIC_19 <- data.frame(concord(sourcevar = HS6_19$HS6,
-                                  origin = "HS6", destination = "ISIC4",
+                                  origin = "HS5", destination = "ISIC4",
                                   dest.digit = 4, all = FALSE))
 
 HS6_ISIC_19 <- bind_cols(HS6_19, HS6_ISIC_19)
 
 HS6_ISIC_19 <- HS6_ISIC_19 %>% 
-  rename(ISIC = concord.sourcevar...HS6_19.HS6..origin....HS6...destination....ISIC4...)
+  rename(ISIC = concord.sourcevar...HS6_19.HS6..origin....HS5...destination....ISIC4...)
 
 us_chn_tariffs_19 <- left_join(us_chn_tariffs_19, HS6_ISIC_19, by = "HS6")
+
+us_chn_tariffs_1819 <- c("us_chn_tariffs_18", "us_chn_tariffs_19")
+
+for(i in us_chn_tariffs_1819){
+  assign(i, get(i) %>% 
+           select(-c(HS6, hs10)) %>% 
+           group_by(month, ISIC) %>% 
+           distinct() %>% 
+           mutate(ISIC = recode(ISIC,
+                                '0111' = "111",
+                                '0113' = '113',
+                                '0121' = '121',
+                                '0143' = '143',
+                                '0311' = '311',
+                                '0510' = '510',
+                                '0610' = '610',
+                                '0729' = '729',
+                                '0810' = '810',
+                                '0891' = '891',
+                                '0892' = '892',
+                                '0893' = '893',
+                                '0520' = '520',
+                                '0141' = '141'))))
+}
