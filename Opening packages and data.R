@@ -7,6 +7,7 @@ library(bookdown)
 library(ggeffects)
 library(xtable)
 library(concordance)
+library(did)
 
 rm(list=ls()) 
 
