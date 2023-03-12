@@ -1,11 +1,12 @@
 ##############################
 # CLEANING TRUMP TARIFF DATA #
 ##############################
+
 us_chn_tariffs_18 <- us_tariffs %>% 
   filter(iso3 == "CHN",
          year == 2018,
          effective_mdate != 716) %>% 
-  select(hs10, tariff_max, tariff_scaled, effective_mdate) %>% 
+  select(hs10, effective_mdate) %>% 
   mutate(month = recode(effective_mdate, 
                         '697' = '2',
                         '698' = '3',
@@ -18,7 +19,7 @@ us_chn_tariffs_18 <- us_tariffs %>%
 us_chn_tariffs_19 <- us_tariffs %>% 
   filter(iso3 == "CHN",
          year == 2019) %>% 
-  select(hs10, tariff_max, tariff_scaled, effective_mdate) %>% 
+  select(hs10, effective_mdate) %>% 
   mutate(month = recode(effective_mdate,
                         "716" = "9"),
          treated = 1)
