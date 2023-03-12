@@ -27,6 +27,8 @@ LFS_2020 <- LFS[[6]]
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
 
+us_chn_tariff <- read.csv("us_chn_tariff.csv")
+
 # ISCO (occupation) SKILL LEVEL FILE 
 isco <- read_dta(file = "ISCO.dta")
 
