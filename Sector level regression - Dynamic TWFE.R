@@ -5,7 +5,7 @@
 us_chn_tariff <- us_chn_tariff %>% 
   select(ISIC, effective_mdate)
 
-sector_agg <- c("sector_17", "sector_18", "sector_19")
+sector_agg <- c("sector_15", "sector_16", "sector_17", "sector_18", "sector_19", "sector_20")
 
 for(i in sector_agg){
   assign(i, full_join(get(i), us_chn_tariff, by = "ISIC"))
@@ -13,58 +13,86 @@ for(i in sector_agg){
   assign(i, get(i) %>% 
            mutate(
              first_treated = recode(effective_mdate, 
-                                   '697' = '201802',
-                                   '698' = '201802',
-                                   '702' = '201802',
-                                   '703' = '201802',
-                                   '704' = '201802',
-                                   '716' = '201902'),
-             treated = ifelse(effective_mdate > 0, 1, 0)
+                                    '697' = '201802',
+                                    '698' = '201803',
+                                    '702' = '201807',
+                                    '703' = '201808',
+                                    '704' = '201809',
+                                    '716' = '201909'
+             ),
+             treated = ifelse(year_month > first_treated, 1, 0)
                   ))
-  
-  if(i %in% c("sector_17")){
-    assign(i, get(i) %>%
-             mutate(year_month = year)
-    )
-  }
-  
-  if(i %in% c("sector_18")){
-      assign(i, get(i) %>%
-               mutate(year_month = ifelse(year_month < 201807, 201801, 201802))
-      )
-  }
-    
-  if(i %in% c("sector_19")){
-      assign(i, get(i) %>%
-               mutate(year_month = ifelse(year_month < 201909, 201901, 201902))
-      )    
-  }
+
 }
 
-sector_1519 <- bind_rows(list(sector_17, sector_18, sector_19))
+sector_1519 <- bind_rows(list(sector_15, sector_16, sector_17, sector_18, sector_19, sector_20))
+
+sector_1519$year_ft <- as.numeric(substr(trimws(format(sector_1519$first_treated, scientific = F)), 1, 4))
 
 sector_1519$first_treated <- as.numeric(sector_1519$first_treated)
 
-sector_1519 <- sector_1519 %>% mutate(first_treated = ifelse(is.na(first_treated), 0, first_treated))
+sector_1519 <- sector_1519 %>%
+  mutate(first_treated = ifelse(is.na(first_treated), 0, first_treated),
+         treated = ifelse(is.na(treated), 0, treated),
+         time_to_treated = year - year_ft,
+         treat = ifelse(first_treated > 0, 1, 0))
 
-################
-# DYNAMIC TWFE #
-################
+##############
+# SIMPLE TWFE#
+##############
 
-sector_dynamic_twfe_a <- att_gt(
-  yname = "n_workers",
-  gname = "first_treated",
-  idname = "ISIC",
-  tname = "year_month",
-  data = sector_1519,
-)
+etable(list(
+  feols(n_workers ~ i(year, treat, 2018) | ISIC^month + year, sector_1519),
+  feols(hours ~ i(year, treat, 2018) | ISIC^month + year, sector_1519),
+  feols(log(wage) ~ i(year, treat, 2018) | ISIC^month + year, sector_1519)), tex = T)
+ 
+etable(list(
+  feols(female_ratio ~ i(year, treat, 2018) | ISIC^month + year, sector_1519),
+  feols(formal_ratio ~ i(year, treat, 2018) | ISIC^month + year, sector_1519)
+), tex = T)
 
-summary(sector_dynamic_twfe_a)
+dict = c("2015" = "t-3")
 
-# aggregate group-time ATE 
+setFixest_coefplot(dict = dict, grid = F)
 
-sector_dynamic_twfe_agg <- aggte(sector_dynamic_twfe, type = "dynamic")
+png("hours_TWFE.png")
+iplot(feols(hours ~ i(year, treat, 2018) | ISIC^month + year, sector_1519))
+axis(1, at = c(2015:2020), labels = c("t-3", "t-2", "t-1", "0", "t+1", "t+2"))
+dev.off()
 
-summary(sector_dynamic_twfe_agg)
+png("wages_TWFE.png")
+iplot(feols(log(wage) ~ i(year, treat, 2018) | ISIC^month + year, sector_1519))
+dev.off()
 
-ggdid(sector_dynamic_twfe_agg)
+png("n_workers_TWFE.png")
+iplot(feols(n_workers ~ i(year, treat, 2018) | ISIC^month + year, sector_1519))
+dev.off()
+
+png("f_ratio_TWFE.png")
+iplot(feols(female_ratio ~ i(year, treat, 2018) | ISIC^month + year, sector_1519))
+dev.off()
+
+png("formal_ratio.png")
+iplot(feols(formal_ratio ~ i(year, treat, 2018) | ISIC^month + year, sector_1519))
+dev.off()
+
+########################
+# SUB AND ABRAHAM TWFE #
+########################
+
+etable(list(
+  feols(hours ~ treated + sunab(year_ft, year) | ISIC^month + year, sector_1519),
+  feols(log(wage) ~ treated + sunab(year_ft, year) | ISIC^month + year, sector_1519),
+  feols(n_workers ~ treated + sunab(year_ft, year) | ISIC^month + year, sector_1519),
+  feols(formal_ratio ~ treated + sunab(year_ft, year) | ISIC^month + year, sector_1519),
+  feols(female_ratio ~ treated + sunab(year_ft, year) | ISIC^month + year, sector_1519)
+), agg = "att", tex = TRUE)
+
+#######################
+# WITH LEADS AND LAGS # 
+#######################
+
+etable(list(
+  feols(hours ~ l(treated, -3:2), sector_1519, panel.id = ~ISIC+year_month),
+  feols(log(wage) ~ l(treated, -3:2), sector_1519, panel.id = ~ISIC+year_month)
+))
