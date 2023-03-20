@@ -127,7 +127,7 @@ LFS_2020 <- LFS_2020 %>%
          wage = C72, 
          month = ThangDT,
          age = C05,
-         hours = C66) 
+         hours = C65) 
 
 for (i in LFS_1520){
   assign(i, get(i) %>% 
