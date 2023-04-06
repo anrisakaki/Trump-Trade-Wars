@@ -19,6 +19,10 @@ LFS1520 <- bind_rows(list(LFS_2015, LFS_2016, LFS_2017, LFS_2018, LFS_2019, LFS_
 
 LFS1520$year_ft <- as.numeric(substr(trimws(format(LFS1520$first_treated, scientific = F)), 1, 4))
 
+LFS1520 <- LFS1520 %>% 
+  mutate(ttt = year_ft - year,
+         ttt = ifelse(ttt < -4, NA, ttt))
+
 ###############
 # STATIC TWFE #
 ###############
@@ -62,20 +66,50 @@ etable(list(
         vcov = ~ ISIC,
         LFS1520), tex = T)
 
+#######################
+# BASIC EVENT STUDIES #
+#######################
+
+results <- ES(long_data=LFS1520,
+              outcomevar="wage", 
+              unit_var="ISIC",
+              cal_time_var="year", 
+              onset_time_var="year_ft",
+              cluster_vars="ISIC")
+
+#########################
+# ADDING LEADS AND LAGS # 
+#########################
+
+panel(LFS1520, ~ISIC+year_month)
+
+##########################
+# CALLAWAY AND SANT'ANNA # 
+##########################
+
+work_cs21 <- att_gt(yname = "work",
+                    gname = "year_ft",
+                    idname = "ISIC",
+                    tname = "year",
+                    control_group="notyettreated",
+                    data = LFS1520)
+
+cs21
+
 ########################
 # SUN AND ABRAHAM TWFE #
 ########################
 
 etable(list(
-  feols(work ~ sunab(year_ft, year) | ISIC^month + year,
+  feols(work ~ treat + sunab(year_ft, year) | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520),
-  feols(hours ~ sunab(year_ft, year) | ISIC^month + year,
+  feols(hours ~ treat + sunab(year_ft, year) | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520),
-  feols(log(wage) ~ sunab(year_ft, year) | ISIC^month + year,
+  feols(log(wage) ~ treat + sunab(year_ft, year) | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520)
