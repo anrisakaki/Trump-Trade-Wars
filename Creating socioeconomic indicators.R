@@ -133,5 +133,5 @@ for (i in LFS_1520){
   assign(i, get(i) %>% 
            select(province, district, urban, age, educ, work, ISIC, wage, hours, formal, casual_contract, FDI, Female, year, month, weight) %>% 
            mutate(year_month = year*100 + month,
-                  wage_perh = wage/hours)))
+                  wage_perh = wage/hours))
 }
