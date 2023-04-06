@@ -20,106 +20,97 @@ LFS1520 <- bind_rows(list(LFS_2015, LFS_2016, LFS_2017, LFS_2018, LFS_2019, LFS_
 LFS1520$year_ft <- as.numeric(substr(trimws(format(LFS1520$first_treated, scientific = F)), 1, 4))
 
 LFS1520 <- LFS1520 %>% 
-  mutate(ttt = year_ft - year,
-         ttt = ifelse(ttt < -4, NA, ttt))
-
-###############
-# STATIC TWFE #
-###############
-
-etable(list(
-  feols(work ~ i(year, treated, 2018) | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520),
-  feols(hours ~ i(year, treated, 2018) | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520),
-  feols(log(wage) ~ i(year, treated, 2018) | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520)
-), tex = T)
-
-etable(list(
-  feols(work ~ i(year, treated, 2018) + age + age^2 + educ + Female + urban | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520)),
-  feols(hours ~ i(year, treated, 2018) + age + age^2 + educ + Female + urban | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520),
-  feols(log(wage) ~ i(year, treated, 2018) + age + age^2 + educ + Female + urban | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520), tex = T)
-
-etable(list(
-  feols(formal ~ i(year, treat, 2018) + age + age^2 + educ + Female + urban | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520)),
-  feols(casual_contract ~ i(year, treat, 2018) + age + age^2 + educ + Female + urban | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ ISIC,
-        LFS1520), tex = T)
+  mutate(ttt = year - year_ft,
+         ttt = ifelse(ttt > 3, 0, ttt))
 
 #######################
 # BASIC EVENT STUDIES #
 #######################
 
-results <- ES(long_data=LFS1520,
-              outcomevar="wage", 
-              unit_var="ISIC",
-              cal_time_var="year", 
-              onset_time_var="year_ft",
-              cluster_vars="ISIC")
+etable(list(
+  feols(work ~ i(ttt, treated, ref = -1) | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(hours ~ i(ttt, treated, ref = -1) | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage) ~ i(ttt, treated, ref = -1) | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage_perh) ~ i(ttt, treated, ref = -1) | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520)  
+), tex = TRUE)
 
-#########################
-# ADDING LEADS AND LAGS # 
-#########################
+# Plus controls 
 
-panel(LFS1520, ~ISIC+year_month)
-
-##########################
-# CALLAWAY AND SANT'ANNA # 
-##########################
-
-work_cs21 <- att_gt(yname = "work",
-                    gname = "year_ft",
-                    idname = "ISIC",
-                    tname = "year",
-                    control_group="notyettreated",
-                    data = LFS1520)
-
-cs21
+etable(list(
+  feols(work ~ i(ttt, treated, ref = -1) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(hours ~ i(ttt, treated, ref = -1) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage) ~ i(ttt, treated, ref = -1) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage_perh) ~ i(ttt, treated, ref = -1) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520)  
+), tex = TRUE)
 
 ########################
 # SUN AND ABRAHAM TWFE #
 ########################
 
-etable(list(
-  feols(work ~ treat + sunab(year_ft, year) | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ISIC,
-        LFS1520),
-  feols(hours ~ treat + sunab(year_ft, year) | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ISIC,
-        LFS1520),
-  feols(log(wage) ~ treat + sunab(year_ft, year) | ISIC^month + year,
-        weights = ~ weight,
-        vcov = ~ISIC,
-        LFS1520)
-), agg = "att", tex = TRUE)
+# Following Sun and Abraham, we give our never-treated units a fake "treatment"
+# date far outside the relevant study period.
+
+LFS1520 <- LFS1520 %>% 
+  mutate(year_ft = ifelse(treated == 0, 10000, year_ft))
 
 etable(list(
-  feols(frormal ~ sunab(year_ft, year) | ISIC^month + year,
+  feols(work ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520),
-  feols(hours ~ sunab(year_ft, year) | ISIC^month + year, LFS1520)
-), agg = "att", tex = TRUE)
+  feols(hours ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage) ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage_perh) ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520)  
+), tex = TRUE)
 
+etable(list(
+  feols(work ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(hours ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage) ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520),
+  feols(log(wage_perh) ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+        weights = ~ weight,
+        vcov = ~ISIC,
+        LFS1520)  
+), agg = "att", tex = TRUE)
