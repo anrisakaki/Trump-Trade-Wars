@@ -132,8 +132,6 @@ LFS_2020 <- LFS_2020 %>%
 for (i in LFS_1520){
   assign(i, get(i) %>% 
            select(province, district, urban, age, educ, work, ISIC, wage, hours, formal, casual_contract, FDI, Female, year, month, weight) %>% 
-           mutate(year_month = year*100 + month) %>% 
-           mutate(age1 = as.numeric(age > 17 & age < 31),
-                  age2 = as.numeric(age > 30 & age < 46),
-                  age3 = as.numeric(age > 45)))
+           mutate(year_month = year*100 + month,
+                  wage_perh = wage/hours)))
 }
