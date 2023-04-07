@@ -96,19 +96,19 @@ etable(list(
 ), tex = TRUE)
 
 etable(list(
-  feols(work ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+  feols(work ~ sunab(ytt, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520),
-  feols(hours ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+  feols(hours ~ sunab(ytt, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520),
-  feols(log(wage) ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+  feols(log(wage) ~ sunab(ytt, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520),
-  feols(log(wage_perh) ~ sunab(year_ft, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
+  feols(log(wage_perh) ~ sunab(ytt, year) + age + age^2 + educ + Female + urban | ISIC^month + year,
         weights = ~ weight,
         vcov = ~ISIC,
         LFS1520)  
