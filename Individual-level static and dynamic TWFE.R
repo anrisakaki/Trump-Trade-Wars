@@ -1,5 +1,5 @@
 for (i in LFS_1520){
-  # assign(i, full_join(get(i), us_chn_tariff, by = "ISIC"))
+  assign(i, full_join(get(i), us_chn_tariff, by = "ISIC"))
   
   assign(i, get(i) %>% 
            mutate(first_treated = recode(effective_mdate, 
