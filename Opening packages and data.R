@@ -8,7 +8,7 @@ library(ggeffects)
 library(xtable)
 library(concordance)
 library(did)
-library(eventStudy)
+library(staggered)
 
 rm(list=ls()) 
 
