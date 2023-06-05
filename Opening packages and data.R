@@ -12,7 +12,11 @@ library(staggered)
 
 rm(list=ls()) 
 
+here <- here::here
+
 setwd("C:/Users/Anri Sakakibara/OneDrive/PhD Political Economy/Trump China Trade War/")
+
+here() # check that gives correct path
 
 # Loading LFS files 
 LFS <- list.files(pattern = "LFS(.*)dta$")
@@ -24,6 +28,16 @@ LFS_2017 <- LFS[[3]]
 LFS_2018 <- LFS[[4]]
 LFS_2019 <- LFS[[5]]
 LFS_2020 <- LFS[[6]]
+
+# Loading Enterprise Census files 
+
+DN <- list.files(pattern = "dn(.*)dta$")
+DN <- lapply(DN, read_dta)
+
+DN_2014 <- DN[[1]]
+DN_2015 <- DN[[2]]
+DN_2016 <- DN[[3]]
+DN_2017 <- DN[[4]]
 
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
