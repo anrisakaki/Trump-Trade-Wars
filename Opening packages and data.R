@@ -38,6 +38,7 @@ DN_2014 <- DN[[1]]
 DN_2015 <- DN[[2]]
 DN_2016 <- DN[[3]]
 DN_2017 <- DN[[4]]
+DN_2018 <- DN[[5]]
 
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
