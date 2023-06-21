@@ -34,11 +34,15 @@ LFS_2020 <- LFS[[6]]
 DN <- list.files(pattern = "dn(.*)dta$")
 DN <- lapply(DN, read_dta)
 
-DN_2014 <- DN[[1]]
-DN_2015 <- DN[[2]]
-DN_2016 <- DN[[3]]
-DN_2017 <- DN[[4]]
-DN_2018 <- DN[[5]]
+DN_2014 <- DN[[2]]
+DN_2015 <- DN[[3]]
+DN_2016 <- DN[[4]]
+DN_2016_fdi <- DN[[5]]
+DN_2017 <- DN[[6]]
+DN_2018 <- DN[[7]]
+DN_2019 <- DN[[8]]
+DN_2019a <- DN[[9]]
+DN_2019_fdi <- DN[[10]]
 
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
@@ -51,3 +55,6 @@ isco <- read_dta(file = "ISCO.dta")
 # Concordance 
 i4_i3 <- read_dta(file = "Concordance_I4_to_I3.dta")
 hs_i3 <- read_dta(file = "Concordance_HS_to_I3.dta")
+
+vsic0793 <- read.csv(file = "VSIC 2007 - VSIC 1993 conversion.csv")
+vsic1893 <- read_dta(file = "4-digit VSIC2018 to 3-digit VSIC1993.dta")
