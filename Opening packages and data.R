@@ -44,6 +44,18 @@ DN_2019 <- DN[[8]]
 DN_2019a <- DN[[9]]
 DN_2019_fdi <- DN[[10]]
 
+# Loading export data files 
+
+HH <- list.files(pattern = "hh(.*)dta$")
+HH <- lapply(HH, read_dta)
+
+HH_2016 <- HH[[1]]
+
+GC <- list.files(pattern = "gc(.*)dta$")
+GC <- lapply(GC, read_dta)
+
+GC_2016 <- GC[[1]]
+
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
 
