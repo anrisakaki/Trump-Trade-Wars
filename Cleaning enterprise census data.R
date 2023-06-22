@@ -188,3 +188,39 @@ dn1419 <- bind_rows(dn14, dn15, dn16, dn17, dn18, dn19) %>%
 
 write_dta(dn1419, "dn1419.dta")
 save(dn1419, file = "dn1419.rda")
+
+####################################################
+# CLEANING EXPORT AND INTERMEDIATE PROCESSING DATA #
+####################################################
+
+exp14 <- DN_2014 %>% 
+  rename(export = co_xk,
+         exp_value = tgxk_tt,
+         vsic07 = nganh_kd) %>% 
+  mutate(year = 2014) %>% 
+  select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "export", "exp_value")
+
+exp15 <- DN_2015 %>% 
+  rename(exp_value = tgxk_tt,
+         vsic07 = nganh_kd) %>% 
+  mutate(year = 2015,
+         export = ifelse(exp_value > 0, 1, 0)) %>% 
+  select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "export", "exp_value")
+
+exp16 <- GC_2016 %>%
+  rename(exp_value = trigia_e42,
+         intp_value = trigia_e52,
+         vsic07 = nganh_kdcn,
+         huyen = huyencn) %>%
+  mutate(export = ifelse(ma_e42 == "1", 1, 0),
+         intprocess = ifelse(ma_e52 == "1", 1, 0),
+         year = 2016) %>% 
+  select("year", "vsic07", "tinh", "huyen", "ma_thue", ma_thue2, "export", "intprocess", "intp_value", "exp_value")
+
+ip16 <- HH_2016 %>% 
+  rename(ip_country = manuoc,
+         preprocess_value = cot1,
+         postprocess_totvalue = cot2,
+         postprocess_value = cot4,
+         process_fee = cot6) %>% 
+  select(tinh, ma_thue, ma_thue2, ip_country, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
