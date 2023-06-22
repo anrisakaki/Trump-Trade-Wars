@@ -31,13 +31,16 @@ dn14 <- DN_2014 %>%
          wage = tn1,
          net_turnover = kqkd5,
          net_turnover1 = kqkdc,
-         pretax_profit = kqkd22) %>% 
+         pretax_profit = kqkd22,
+         export = co_xk,
+         exp_value = tgxk_tt) %>% 
   mutate(year = 2014) %>% 
   select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
-         "wage", "net_turnover", "pretax_profit")
+         "wage", "net_turnover", "pretax_profit", export, exp_value)
 
 dn14 <- merge(dn14, concorda, by = "vsic07") %>% 
-  select(-"nkd16")
+  select(-"nkd16") %>% 
+  distinct()
 
 dn15 <- DN_2015 %>% 
   rename(vsic07 = nganh_kd,
@@ -48,23 +51,25 @@ dn15 <- DN_2015 %>%
          n_informal = ld31,
          n_finformal = ld32,
          wage = tn1,
-         export_value = tgxk_tt, 
+         exp_value = tgxk_tt, 
          net_turnover = kqkd5,
          net_turnover1 = kqkdc,         
          pretax_profit = kqkd20) %>% 
-  mutate(year = 2015) %>% 
+  mutate(year = 2015,
+         export = ifelse(exp_value > 0, 1, 0)) %>% 
   select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
-         "wage", "net_turnover", "pretax_profit")
+         "wage", "net_turnover", "pretax_profit", export, exp_value)
 
 dn15 <- merge(dn15, concorda, by = "vsic07") %>% 
-  select(-"vsic07")
+  select(-"vsic07") %>% 
+  distinct()
 
 dn_16fdi <- DN_2016_fdi %>% 
   mutate(FDI_oc = nvpd1,
          FDI_share = vpdn11/ vpd11) %>% 
   select(ma_thue, ma_thue2, FDI_oc, FDI_share)
 
-DN_2016 <- left_join(DN_2016, dn_16fdi, by = c("ma_thue", "ma_thue2"))
+DN_2016 <- left_join(DN_2016, dn_16fdi, by = c("ma_thue", "ma_thue2")) %>% distinct()
 
 dn16 <- DN_2016 %>% 
   rename(nkd16 = nganh_kd,
@@ -78,7 +83,7 @@ dn16 <- DN_2016 %>%
          net_turnover1 = kqkdc,         
          pretax_profit = kqkd20) %>% 
   mutate(year = 2016) %>% 
-  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
 dn16 <- merge(dn16, concorda, by = "nkd16") %>% 
@@ -98,7 +103,7 @@ dn17 <- DN_2017 %>%
          FDI_oc = nvpd1,
          pretax_profit = kqkd7) %>% 
   mutate(year = 2017) %>% 
-  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
 dn17 <- merge(dn17, concorda, by = "nkd16") %>% 
@@ -118,7 +123,7 @@ dn18 <- DN_2018 %>%
          FDI_oc = nvpd1,         
          pretax_profit = kqkd7) %>% 
   mutate(year = 2018) %>% 
-  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
 dn18 <- merge(dn18, concorda, by = "nkd16") %>% 
@@ -155,6 +160,57 @@ dn19 <- DN_2019 %>%
 dn19 <- merge(dn19, concord1893, by = "vsic2018") %>%
   select(-"vsic2018")
 
+####################################################
+# CLEANING EXPORT AND INTERMEDIATE PROCESSING DATA #
+####################################################
+
+# Export 
+
+exp16 <- GC_2016 %>%
+  rename(exp_value = trigia_e42,
+         huyen = huyencn) %>%
+  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
+  select("tinh", "huyen", "ma_thue", ma_thue2, "export", "exp_value")
+
+dn16 <- left_join(dn16, exp16, by = c("tinh", "huyen", "ma_thue", "ma_thue2"))
+
+exp17 <- GC_2017 %>% 
+  rename(exp_value = trigia_e42,
+         huyen = huyencn) %>% 
+  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
+  select(tinh, huyen, ma_thue, ma_thue2, export, exp_value)  
+
+dn17 <- left_join(dn17, exp17, by = c("tinh", "huyen", "ma_thue", "ma_thue2"))
+
+exp18 <- GC_2018 %>% 
+  rename(exp_value = trigia_e42) %>% 
+  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
+  select(tinh, ma_thue, ma_thue2, export, exp_value)   
+
+dn18 <- left_join(dn18, exp18, by = c("tinh", "ma_thue", "ma_thue2"))
+
+exp19 <- GC_2019 %>% 
+  rename(ma_thue = masothue,
+         exp_value = trigiank) %>% 
+  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
+  select(ma_thue, export, exp_value)
+
+dn19 <- left_join(dn19, exp19, by = "ma_thue")
+
+# Intermediary processing 
+
+ip16 <- HH_2016 %>% 
+  rename(ip_country = manuoc,
+         preprocess_value = cot1,
+         postprocess_totvalue = cot2,
+         postprocess_value = cot4,
+         process_fee = cot6) %>% 
+  select(tinh, ma_thue, ma_thue2, ip_country, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
+
+###################################
+# COMPILING INTO SINGLE DATAFRAME #
+###################################
+
 dn1419a <- c("dn14", "dn15", "dn16", "dn17", "dn18", "dn19")
 
 for(i in dn1419a){
@@ -181,46 +237,14 @@ dn1419 <- bind_rows(dn14, dn15, dn16, dn17, dn18, dn19) %>%
   mutate(id = cur_group_id()) %>% 
   mutate(female_share = n_fworkers/n_workers,
          female_share_eoy = n_fworkers_eoy/n_workers_eoy,
-         FDI = ifelse(lhdn > 10, 1, 0)) %>% 
+         FDI = ifelse(lhdn > 10, 1, 0),
+         export = ifelse(exp_value > 0, 1, 0),
+         export = ifelse(is.na(export), 0 , export),
+         exp_value = ifelse(exp_value == 0, NA, exp_value)) %>% 
   select(-c("nkd16", "vsic07", "vsic93")) %>% 
   distinct() %>% 
-  select(id, year, isic3, everything())
+  select(id, year, isic3, everything()) %>% 
+  select(-"ma_thue2")
 
 write_dta(dn1419, "dn1419.dta")
 save(dn1419, file = "dn1419.rda")
-
-####################################################
-# CLEANING EXPORT AND INTERMEDIATE PROCESSING DATA #
-####################################################
-
-exp14 <- DN_2014 %>% 
-  rename(export = co_xk,
-         exp_value = tgxk_tt,
-         vsic07 = nganh_kd) %>% 
-  mutate(year = 2014) %>% 
-  select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "export", "exp_value")
-
-exp15 <- DN_2015 %>% 
-  rename(exp_value = tgxk_tt,
-         vsic07 = nganh_kd) %>% 
-  mutate(year = 2015,
-         export = ifelse(exp_value > 0, 1, 0)) %>% 
-  select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "export", "exp_value")
-
-exp16 <- GC_2016 %>%
-  rename(exp_value = trigia_e42,
-         intp_value = trigia_e52,
-         vsic07 = nganh_kdcn,
-         huyen = huyencn) %>%
-  mutate(export = ifelse(ma_e42 == "1", 1, 0),
-         intprocess = ifelse(ma_e52 == "1", 1, 0),
-         year = 2016) %>% 
-  select("year", "vsic07", "tinh", "huyen", "ma_thue", ma_thue2, "export", "intprocess", "intp_value", "exp_value")
-
-ip16 <- HH_2016 %>% 
-  rename(ip_country = manuoc,
-         preprocess_value = cot1,
-         postprocess_totvalue = cot2,
-         postprocess_value = cot4,
-         process_fee = cot6) %>% 
-  select(tinh, ma_thue, ma_thue2, ip_country, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
