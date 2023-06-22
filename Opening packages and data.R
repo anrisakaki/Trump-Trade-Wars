@@ -55,6 +55,9 @@ GC <- list.files(pattern = "gc(.*)dta$")
 GC <- lapply(GC, read_dta)
 
 GC_2016 <- GC[[1]]
+GC_2017 <- GC[[2]]
+GC_2018 <- GC[[3]]
+GC_2019 <- GC[[4]]
 
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
