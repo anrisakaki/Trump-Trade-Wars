@@ -200,12 +200,14 @@ dn19 <- left_join(dn19, exp19, by = "ma_thue")
 # Intermediary processing 
 
 ip16 <- HH_2016 %>% 
-  rename(ip_country = manuoc,
+  rename(country = manuoc,
          preprocess_value = cot1,
          postprocess_totvalue = cot2,
          postprocess_value = cot4,
          process_fee = cot6) %>% 
-  select(tinh, ma_thue, ma_thue2, ip_country, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
+  select(tinh, ma_thue, ma_thue2, country, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
+
+
 
 ###################################
 # COMPILING INTO SINGLE DATAFRAME #
