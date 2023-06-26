@@ -204,9 +204,16 @@ ip16 <- HH_2016 %>%
          preprocess_value = cot1,
          postprocess_totvalue = cot2,
          postprocess_value = cot4,
-         process_fee = cot6) %>% 
-  select(tinh, ma_thue, ma_thue2, country, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
+         process_fee = cot6) %>%
+  mutate(china = ifelse(country == "CN", 1, 0)) %>% 
+  select(tinh, ma_thue, ma_thue2, country, china, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
 
+
+ip17 <- TL_2017 %>% 
+  filter(manuoc != "VN")
+
+ip18 <- TL_2018 %>% 
+  filter(manuoc != "VN")
 
 
 ###################################
