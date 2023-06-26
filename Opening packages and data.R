@@ -59,6 +59,12 @@ GC_2017 <- GC[[2]]
 GC_2018 <- GC[[3]]
 GC_2019 <- GC[[4]]
 
+TL <- list.files(pattern = "tl(.*)dta$")
+TL <- lapply(TL, read_dta)
+
+TL_2017 <- TL[[1]]
+TL_2018 <- TL[[2]]
+
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
 
