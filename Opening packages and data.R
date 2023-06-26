@@ -50,6 +50,9 @@ HH <- list.files(pattern = "hh(.*)dta$")
 HH <- lapply(HH, read_dta)
 
 HH_2016 <- HH[[1]]
+HH_2017 <- HH[[2]]
+HH_2018 <- HH[[3]]
+HH_2019 <- HH[[4]]
 
 GC <- list.files(pattern = "gc(.*)dta$")
 GC <- lapply(GC, read_dta)
