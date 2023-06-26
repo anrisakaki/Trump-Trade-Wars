@@ -200,21 +200,62 @@ dn19 <- left_join(dn19, exp19, by = "ma_thue")
 # Intermediary processing 
 
 ip16 <- HH_2016 %>% 
+  filter(manuoc != "VN") %>% 
   rename(country = manuoc,
-         preprocess_value = cot1,
-         postprocess_totvalue = cot2,
-         postprocess_value = cot4,
+         postprocess_value = cot2,
          process_fee = cot6) %>%
-  mutate(china = ifelse(country == "CN", 1, 0)) %>% 
-  select(tinh, ma_thue, ma_thue2, country, china, preprocess_value, postprocess_value, postprocess_totvalue, process_fee)
+  mutate(china = ifelse(country == "CN", 1, 0),
+         year = 2016) %>% 
+  select(year, tinh, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)
 
+ind16 <- dn16 %>% 
+  select(ma_thue, ma_thue2, isic3)
 
-ip17 <- TL_2017 %>% 
-  filter(manuoc != "VN")
+ip16 <- merge(ip16, ind16, by = c("ma_thue", "ma_thue2"))
+  
+ip17 <- HH_2017 %>% 
+  filter(manuoc != "VN") %>% 
+  rename(country = manuoc,
+         postprocess_value = hanghoa_nn,
+         process_fee = chiphi_nn) %>% 
+  mutate(china = ifelse(country == "CN", 1, 0),
+         year = 2017) %>% 
+  select(year, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)
 
-ip18 <- TL_2018 %>% 
-  filter(manuoc != "VN")
+ind17 <- dn17 %>% 
+  select(ma_thue, ma_thue2, isic3)
 
+ip17 <- merge(ip17, ind17, by = c("ma_thue", "ma_thue2"))
+
+ip18 <- HH_2018 %>% 
+  filter(manuoc != "VN") %>% 
+  rename(country = manuoc,
+         postprocess_value = hanghoa_nn,
+         process_fee = chiphi_hh) %>% 
+  mutate(china = ifelse(country == "CN", 1, 0),
+         year = 2018) %>% 
+  select(year, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)  
+
+ind18 <- dn18 %>% 
+  select(ma_thue, ma_thue2, isic3)
+
+ip18 <- merge(ip18, ind18, by = c("ma_thue", "ma_thue2"))
+
+ip19 <- HH_2019 %>% 
+  filter(manuoc != "VN") %>% 
+  rename(country = manuoc,
+         postprocess_value = tongtrig,
+         process_fee = phigiaco,
+         ma_thue = masothue,
+         ma_thue2 = v3_a) %>%
+  mutate(china = ifelse(country == "CN", 1, 0),
+         year = 2019) %>% 
+  select(year, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)
+
+ind19 <- dn19 %>% 
+  select(ma_thue, isic3)
+
+ip19 <- merge(ip19, ind19, by = "ma_thue")
 
 ###################################
 # COMPILING INTO SINGLE DATAFRAME #
@@ -257,3 +298,9 @@ dn1419 <- bind_rows(dn14, dn15, dn16, dn17, dn18, dn19) %>%
 
 write_dta(dn1419, "dn1419.dta")
 save(dn1419, file = "dn1419.rda")
+
+ip1619 <- bind_rows(ip16, ip17, ip18, ip19) %>% 
+  select(-"tinh")
+
+save(ip1619, file = "ip1619.rda")
+write_dta(ip1619, "ip1619.dta")
