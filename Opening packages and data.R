@@ -68,6 +68,19 @@ TL <- lapply(TL, read_dta)
 TL_2017 <- TL[[1]]
 TL_2018 <- TL[[2]]
 
+# Product data 
+
+SP <- list.files(pattern = "sp(.*)dta$")
+SP <- lapply(SP, read_dta)
+
+SP_2014 <- SP[[2]]
+SP_2015 <- SP[[3]]
+SP_2016 <- SP[[4]]
+SP_2017 <- SP[[5]]
+SP_2018 <- SP[[6]]
+
+hs10_trump <- read_dta(file = "did10dig_year.dta")
+
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
 
@@ -82,3 +95,5 @@ hs_i3 <- read_dta(file = "Concordance_HS_to_I3.dta")
 
 vsic0793 <- read.csv(file = "VSIC 2007 - VSIC 1993 conversion.csv")
 vsic1893 <- read_dta(file = "4-digit VSIC2018 to 3-digit VSIC1993.dta")
+
+masp_hs8 <- read_csv(file = "masp_hs_concord.csv")
