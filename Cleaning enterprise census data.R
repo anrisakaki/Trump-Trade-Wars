@@ -11,14 +11,6 @@ concord16 <- DN_2016 %>%
 
 concorda <- left_join(vsic0793, concord16, by = "vsic07")
 
-concordb <- merge(vsic1893, vsic1807, by = "vsic2018")
-concordc <- vsic0793 %>% 
-  mutate(vsic07 = ifelse(vsic07 < 10101, str_sub(as.character(vsic07), start = 1, end = 3),
-                         str_sub(as.character(vsic07), start = 1, end = 4)))
-
-concord1893 <- merge(concordb, concordc, by = "vsic07") %>% 
-  select(vsic2018, vsic93) %>% distinct()
-
 dn14 <- DN_2014 %>% 
   rename(vsic07 = nganh_kd,
          n_workers = tsld,
@@ -157,7 +149,7 @@ dn19 <- DN_2019 %>%
   select("year", "vsic2018", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
-dn19 <- merge(dn19, concord1893, by = "vsic2018") %>%
+dn19 <- merge(dn19, vsic1893, by = "vsic2018") %>%
   select(-"vsic2018")
 
 ####################################################
