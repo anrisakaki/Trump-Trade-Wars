@@ -83,31 +83,50 @@ trump_19 <- masp_hs8_trump %>%
 # CLEANING SP FILES #
 #####################
 
+sp1418 <- c("SP_2014", "SP_2015", "SP_2016", "SP_2017", "SP_2018")
+
+for(i in sp1418){
+  
+  assign(i, get(i) %>% 
+           rename(total_volume = kl_spsx,
+                  total_value = trigia) %>% 
+           select(tinh, ma_thue, masp, total_volume, total_value) %>% 
+           group_by(ma_thue, masp) %>%
+           summarise(total_value = sum(total_value),
+                     total_volume = sum(total_volume)))
+  
+}
+
+SP_2019 <- SP_2019 %>% 
+  rename(ma_thue = masothue,
+         masp = masanpha,
+         total_volume = khoiluon,
+         total_value = trigiasp) %>% 
+  select(ma_thue, masp, total_volume, total_value) %>% 
+  group_by(ma_thue, masp) %>%
+  summarise(total_value = sum(total_value),
+            total_volume = sum(total_volume))  
+
 SP_2014 <- SP_2014 %>% mutate(year = 2014)
 SP_2015 <- SP_2015 %>% mutate(year = 2015)
 SP_2016 <- SP_2016 %>% mutate(year = 2016)
 SP_2017 <- SP_2017 %>% mutate(year = 2017)
 SP_2018 <- SP_2018 %>% mutate(year = 2018)
+SP_2019 <- SP_2019 %>% mutate(year = 2019)
 
-sp1419 <- c("SP_2014", "SP_2015", "SP_2015", "SP_2016", "SP_2017", "SP_2018")
+sp1419 <- c("SP_2014", "SP_2015", "SP_2016", "SP_2017", "SP_2018", "SP_2019")
 
-for(i in sp1419){
+for(i in sp1418){
   
-  assign(i, get(i) %>% 
-           rename(total_volume = kl_spsx,
-                  total_value = trigia) %>% 
-           select(year, tinh, ma_thue, masp, total_volume, total_value))
+  assign(i, left_join(get(i), masp_hs8, by = "masp"))
   
-  assign(i,left_join(get(i), willbe_treated, by = "masp"))
 }
+
 
 SP_2018 <- left_join(SP_2018, trump_18, by = "masp")
 
 sp1419 <- bind_rows(SP_2014, SP_2015, SP_2016, SP_2017, SP_2018) %>% 
   group_by(tinh, ma_thue) %>% 
-  mutate(id = cur_group_id())
-
-sp1419 <- left_join(sp1419, hs8_trump, by = c("year", "HS8"))
-
-sp1419 <- left_join(sp1419, willbe_treated, by = "HS8") %>% 
-  mutate(willbe_treated = ifelse(is.na(willbe_treated), 0, willbe_treated))
+  mutate(id = cur_group_id()) %>% 
+  mutate(willbe_treated = ifelse(is.na(willbe_treated), 0, willbe_treated),
+         treated = ifelse(is.na(treated), 0, treated))
