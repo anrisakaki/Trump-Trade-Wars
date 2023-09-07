@@ -78,6 +78,7 @@ SP_2015 <- SP[[3]]
 SP_2016 <- SP[[4]]
 SP_2017 <- SP[[5]]
 SP_2018 <- SP[[6]]
+SP_2019 <- SP[[7]]
 
 hs10_trump <- read_dta(file = "did10dig_year.dta")
 
