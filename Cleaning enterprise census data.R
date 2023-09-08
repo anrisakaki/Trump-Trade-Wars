@@ -2,18 +2,44 @@
 # CLEANING ENTERPRISE CENSUS DATA # 
 ###################################
 
-concord16 <- DN_2016 %>%
-  select(nganh_kd) %>%
-  rename(nkd16 = nganh_kd) %>%
-  distinct() %>% 
-  mutate(vsic07 = as.numeric(nkd16)) %>% 
-  filter(!(nkd16 %in% c(1461, 2101, 8101, 8990, 1450)))
+DN_2019 <- DN_2019 %>% rename(nganh_kd = manganhc)
+DN_2019a <- DN_2019a %>% rename(nganh_kd = manganhc)
 
-concorda <- left_join(vsic0793, concord16, by = "vsic07")
+DN1417 <- c("DN_2014", "DN_2015", "DN_2016", "DN_2017")
+
+for(i in DN1417){
+  
+  assign(i, get(i) %>% 
+           mutate(vsic07 = as.numeric(nganh_kd)))
+  
+  assign(i, left_join(get(i), vsic0793, by = "vsic07")) %>% distinct()
+}
+
+vsic0793 <- vsic0793 %>% 
+  mutate(vsic07 = ifelse(vsic07 < 10101, str_sub(as.character(vsic07), start = 1, end = 3),
+                                    str_sub(as.character(vsic07), start = 1, end = 4))) %>% 
+  distinct()
+
+vsic0793$vsic07 <- as.numeric(vsic0793$vsic07)
+
+vsic1807 <- vsic1807 %>% mutate(vsic07 = as.numeric(vsic07))
+
+vsic1893 <- left_join(vsic1807, vsic0793, by = "vsic07") %>% select(vsic18, vsic93) %>% distinct()
+
+DN1819 <- c("DN_2018", "DN_2019", "DN_2019a")
+
+for(i in DN1819){
+  
+  assign(i, get(i) %>% 
+           mutate(vsic18 = ifelse(nganh_kd < 10101, str_sub(as.character(nganh_kd), start = 1, end = 3),
+                                  str_sub(as.character(nganh_kd), start = 1, end = 4))) %>% 
+           mutate(vsic18 = as.numeric(vsic18)))
+  
+  assign(i, left_join(get(i), vsic1893, by = "vsic18")) %>% distinct()
+}
 
 dn14 <- DN_2014 %>% 
-  rename(vsic07 = nganh_kd,
-         n_workers = tsld,
+  rename(n_workers = tsld,
          n_fworkers = tsldnu,
          n_workers_eoy = ld11,
          n_fworkers_eoy = ld12,
@@ -27,16 +53,13 @@ dn14 <- DN_2014 %>%
          export = co_xk,
          exp_value = tgxk_tt) %>% 
   mutate(year = 2014) %>% 
-  select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", export, exp_value)
 
-dn14 <- merge(dn14, concorda, by = "vsic07") %>% 
-  select(-"nkd16") %>% 
-  distinct()
+dn14 <- left_join(dn14, treated_firms[[1]], by = "ma_thue")
 
 dn15 <- DN_2015 %>% 
-  rename(vsic07 = nganh_kd,
-         n_workers = tsld,
+  rename(n_workers = tsld,
          n_fworkers = tsldnu,
          n_workers_eoy = ld11,
          n_fworkers_eoy = ld12,
@@ -49,12 +72,10 @@ dn15 <- DN_2015 %>%
          pretax_profit = kqkd20) %>% 
   mutate(year = 2015,
          export = ifelse(exp_value > 0, 1, 0)) %>% 
-  select("year", "vsic07", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", export, exp_value)
 
-dn15 <- merge(dn15, concorda, by = "vsic07") %>% 
-  select(-"vsic07") %>% 
-  distinct()
+dn15 <- left_join(dn15, treated_firms[[2]], by = "ma_thue")
 
 dn_16fdi <- DN_2016_fdi %>% 
   mutate(FDI_oc = nvpd1,
@@ -64,8 +85,7 @@ dn_16fdi <- DN_2016_fdi %>%
 DN_2016 <- left_join(DN_2016, dn_16fdi, by = c("ma_thue", "ma_thue2")) %>% distinct()
 
 dn16 <- DN_2016 %>% 
-  rename(nkd16 = nganh_kd,
-         n_workers = tsld,
+  rename(n_workers = tsld,
          n_fworkers = tsldnu,
          n_workers_eoy = ld11,
          n_fworkers_eoy = ld21,
@@ -75,15 +95,13 @@ dn16 <- DN_2016 %>%
          net_turnover1 = kqkdc,         
          pretax_profit = kqkd20) %>% 
   mutate(year = 2016) %>% 
-  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
-dn16 <- merge(dn16, concorda, by = "nkd16") %>% 
-  select(-"vsic07")
+dn16 <- left_join(dn16, treated_firms[[3]], by = "ma_thue")
 
 dn17 <- DN_2017 %>% 
-  rename(nkd16 = nganh_kd,
-         n_workers = tsld,
+  rename(n_workers = tsld,
          n_fworkers = tsldnu,
          n_workers_eoy = ld11,
          n_fworkers_eoy = ld21,
@@ -95,15 +113,13 @@ dn17 <- DN_2017 %>%
          FDI_oc = nvpd1,
          pretax_profit = kqkd7) %>% 
   mutate(year = 2017) %>% 
-  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
-dn17 <- merge(dn17, concorda, by = "nkd16") %>% 
-  select(-"vsic07")
+dn17 <- left_join(dn17, treated_firms[[4]], by = "ma_thue")
 
 dn18 <- DN_2018 %>% 
-  rename(nkd16 = nganh_kd,
-         n_workers = tsld,
+  rename(n_workers = tsld,
          n_fworkers = tsldnu,
          n_workers_eoy = ld11,
          n_fworkers_eoy = ld21,
@@ -115,11 +131,10 @@ dn18 <- DN_2018 %>%
          FDI_oc = nvpd1,         
          pretax_profit = kqkd7) %>% 
   mutate(year = 2018) %>% 
-  select("year", "nkd16", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
-dn18 <- merge(dn18, concorda, by = "nkd16") %>% 
-  select(-"vsic07")
+dn18 <- left_join(dn18, treated_firms[[5]], by = "ma_thue")
 
 dn19_fdi <- DN_2019_fdi %>% 
   rename(FDI_oc = manuoc) %>% 
@@ -144,137 +159,49 @@ dn19 <- DN_2019 %>%
          net_turnover = doanhthu,
          pretax_profit = loinhuan,
          FDI_share = v63_a/vondieul) %>% 
-  mutate(year = 2019,
-         vsic2018 = as.numeric(manganhc)) %>% 
-  select("year", "vsic2018", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
+  mutate(year = 2019) %>% 
+  select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc")
 
-dn19 <- merge(dn19, vsic1893, by = "vsic2018") %>%
-  select(-"vsic2018")
-
-####################################################
-# CLEANING EXPORT AND INTERMEDIATE PROCESSING DATA #
-####################################################
-
-# Export 
-
-exp16 <- GC_2016 %>%
-  rename(exp_value = trigia_e42,
-         huyen = huyencn) %>%
-  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
-  select("tinh", "huyen", "ma_thue", ma_thue2, "export", "exp_value")
-
-dn16 <- left_join(dn16, exp16, by = c("tinh", "huyen", "ma_thue", "ma_thue2"))
-
-exp17 <- GC_2017 %>% 
-  rename(exp_value = trigia_e42,
-         huyen = huyencn) %>% 
-  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
-  select(tinh, huyen, ma_thue, ma_thue2, export, exp_value)  
-
-dn17 <- left_join(dn17, exp17, by = c("tinh", "huyen", "ma_thue", "ma_thue2"))
-
-exp18 <- GC_2018 %>% 
-  rename(exp_value = trigia_e42) %>% 
-  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
-  select(tinh, ma_thue, ma_thue2, export, exp_value)   
-
-dn18 <- left_join(dn18, exp18, by = c("tinh", "ma_thue", "ma_thue2"))
-
-exp19 <- GC_2019 %>% 
-  rename(ma_thue = masothue,
-         exp_value = trigiank) %>% 
-  mutate(export = ifelse(exp_value > 0, 1, 0)) %>% 
-  select(ma_thue, export, exp_value)
-
-dn19 <- left_join(dn19, exp19, by = "ma_thue")
-
-# Intermediary processing 
-
-ip16 <- HH_2016 %>% 
-  filter(manuoc != "VN") %>% 
-  rename(country = manuoc,
-         postprocess_value = cot2,
-         process_fee = cot6) %>%
-  mutate(china = ifelse(country == "CN", 1, 0),
-         year = 2016) %>% 
-  select(year, tinh, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)
-
-ind16 <- dn16 %>% 
-  select(ma_thue, ma_thue2, isic3)
-
-ip16 <- merge(ip16, ind16, by = c("ma_thue", "ma_thue2"))
-  
-ip17 <- HH_2017 %>% 
-  filter(manuoc != "VN") %>% 
-  rename(country = manuoc,
-         postprocess_value = hanghoa_nn,
-         process_fee = chiphi_nn) %>% 
-  mutate(china = ifelse(country == "CN", 1, 0),
-         year = 2017) %>% 
-  select(year, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)
-
-ind17 <- dn17 %>% 
-  select(ma_thue, ma_thue2, isic3)
-
-ip17 <- merge(ip17, ind17, by = c("ma_thue", "ma_thue2"))
-
-ip18 <- HH_2018 %>% 
-  filter(manuoc != "VN") %>% 
-  rename(country = manuoc,
-         postprocess_value = hanghoa_nn,
-         process_fee = chiphi_hh) %>% 
-  mutate(china = ifelse(country == "CN", 1, 0),
-         year = 2018) %>% 
-  select(year, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)  
-
-ind18 <- dn18 %>% 
-  select(ma_thue, ma_thue2, isic3)
-
-ip18 <- merge(ip18, ind18, by = c("ma_thue", "ma_thue2"))
-
-ip19 <- HH_2019 %>% 
-  filter(manuoc != "VN") %>% 
-  rename(country = manuoc,
-         postprocess_value = tongtrig,
-         process_fee = phigiaco,
-         ma_thue = masothue,
-         ma_thue2 = v3_a) %>%
-  mutate(china = ifelse(country == "CN", 1, 0),
-         year = 2019) %>% 
-  select(year, ma_thue, ma_thue2, country, china, postprocess_value, process_fee)
-
-ind19 <- dn19 %>% 
-  select(ma_thue, isic3)
-
-ip19 <- merge(ip19, ind19, by = "ma_thue")
+dn19 <- left_join(dn19, treated_firms[[6]], by = "ma_thue")
 
 ###################################
 # COMPILING INTO SINGLE DATAFRAME #
 ###################################
 
-dn1419a <- c("dn14", "dn15", "dn16", "dn17", "dn18", "dn19")
+dn_list <- list(dn14, dn15, dn16, dn17, dn18, dn19)
 
-for(i in dn1419a){
-  
-  assign(i, get(i) %>%
-           mutate(vsic93 = sprintf("%04d", vsic93),
-                  isic3 = case_when(
-                    vsic93 == "0112" ~ "0111",
-                    vsic93 == "0113" ~ "0111",
-                    vsic93 == "0114" ~ NA_character_,
-                    vsic93 == "0115" ~ "0113",
-                    vsic93 == "0116" ~ "0112",
-                    vsic93 == "0117" ~ "0111",
-                    vsic93 == "0123" ~ "0122",
-                    vsic93 == "9011" ~ "9211",
-                    vsic93 == "9014" ~ "9214",
-                    TRUE ~ vsic93
-                  )))
-  
+dn <- list()
+
+my_function <- function(df) {
+  result <- df %>%
+    mutate(
+      vsic93 = sprintf("%04d", vsic93),
+      isic3 = case_when(
+        vsic93 == "0112" ~ "0111",
+        vsic93 == "0113" ~ "0111",
+        vsic93 == "0114" ~ NA_character_,
+        vsic93 == "0115" ~ "0113",
+        vsic93 == "0116" ~ "0112",
+        vsic93 == "0117" ~ "0111",
+        vsic93 == "0123" ~ "0122",
+        vsic93 == "9011" ~ "9211",
+        vsic93 == "9014" ~ "9214",
+        TRUE ~ vsic93
+      )
+    )
+  return(result)
 }
 
-dn1419 <- bind_rows(dn14, dn15, dn16, dn17, dn18, dn19) %>% 
+for (i in 1:length(dn_list)) {
+  df <- dn_list[[i]]
+  result <- my_function(df)
+  
+  # Append the result to the results list
+  dn[[i]] <- result
+}
+
+dn1419 <- bind_rows(dn[[1]], dn[[2]], dn[[3]], dn[[4]], dn[[5]], dn[[6]]) %>% 
   group_by(tinh, huyen, xa, ma_thue) %>% 
   mutate(id = cur_group_id()) %>% 
   mutate(female_share = n_fworkers/n_workers,
@@ -283,16 +210,9 @@ dn1419 <- bind_rows(dn14, dn15, dn16, dn17, dn18, dn19) %>%
          export = ifelse(exp_value > 0, 1, 0),
          export = ifelse(is.na(export), 0 , export),
          exp_value = ifelse(exp_value == 0, NA, exp_value)) %>% 
-  select(-c("nkd16", "vsic07", "vsic93")) %>% 
+  select(-c("ma_thue2", "vsic93")) %>%
   distinct() %>% 
-  select(id, year, isic3, everything()) %>% 
-  select(-"ma_thue2")
+  select(id, year, isic3, everything())
 
 write_dta(dn1419, "dn1419.dta")
 save(dn1419, file = "dn1419.rda")
-
-ip1619 <- bind_rows(ip16, ip17, ip18, ip19) %>% 
-  select(-"tinh")
-
-save(ip1619, file = "ip1619.rda")
-write_dta(ip1619, "ip1619.dta")
