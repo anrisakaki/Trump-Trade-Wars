@@ -95,7 +95,6 @@ i4_i3 <- read_dta(file = "Concordance_I4_to_I3.dta")
 hs_i3 <- read_dta(file = "Concordance_HS_to_I3.dta")
 
 vsic0793 <- read.csv(file = "VSIC 2007 - VSIC 1993 conversion.csv")
-vsic1893 <- read_dta(file = "4-digit VSIC2018 to 3-digit VSIC1993.dta")
 vsic1807 <- read_csv(file = "VSIC 2018 - VSIC 2007 conversion.csv")
 
 masp_hs8 <- read_csv(file = "masp_hs_concord.csv")
