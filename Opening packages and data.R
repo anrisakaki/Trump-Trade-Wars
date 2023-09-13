@@ -87,6 +87,8 @@ us_tariffs <- read_dta(file = "us_import_tariffs.dta")
 
 us_chn_tariff <- read.csv("us_chn_tariff.csv")
 
+trump_isic <- read_dta(file = "TRUMP_ISIC.dta")
+
 # ISCO (occupation) SKILL LEVEL FILE 
 isco <- read_dta(file = "ISCO.dta")
 
