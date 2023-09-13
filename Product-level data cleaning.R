@@ -143,3 +143,5 @@ for (i in 1:length(dataframes_list)) {
   # Append the result to the results list
   treated_firms[[i]] <- result
 }
+
+treated_17 <- treated_firms[[4]] %>% rename(treated17 = treated)
