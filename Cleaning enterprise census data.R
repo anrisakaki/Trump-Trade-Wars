@@ -53,7 +53,7 @@ dn14 <- DN_2014 %>%
          export = co_xk,
          exp_value = tgxk_tt) %>% 
   mutate(year = 2014,
-         manu = ifelse(vsic93 < 4010, 1, 0)) %>% 
+         manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", export, exp_value, manu)
 
@@ -74,7 +74,7 @@ dn15 <- DN_2015 %>%
          pretax_profit = kqkd20) %>% 
   mutate(year = 2015,
          export = ifelse(exp_value > 0, 1, 0),
-         manu = ifelse(vsic93 < 4010, 1, 0)) %>% 
+         manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", export, exp_value, manu)
 
@@ -99,7 +99,7 @@ dn16 <- DN_2016 %>%
          net_turnover1 = kqkdc,         
          pretax_profit = kqkd20) %>% 
   mutate(year = 2016,
-         manu = ifelse(vsic93 < 4010, 1, 0)) %>% 
+         manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc", manu)
 
@@ -119,7 +119,7 @@ dn17 <- DN_2017 %>%
          FDI_oc = nvpd1,
          pretax_profit = kqkd7) %>% 
   mutate(year = 2017,
-         manu = ifelse(vsic93 < 4010, 1, 0)) %>% 
+         manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc", manu)
 
@@ -139,7 +139,7 @@ dn18 <- DN_2018 %>%
          FDI_oc = nvpd1,         
          pretax_profit = kqkd7) %>% 
   mutate(year = 2018,
-         manu = ifelse(vsic93 < 4010, 1, 0)) %>% 
+         manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc", manu)
 
@@ -170,7 +170,7 @@ dn19 <- DN_2019 %>%
          pretax_profit = loinhuan,
          FDI_share = v63_a/vondieul) %>% 
   mutate(year = 2019,
-         manu = ifelse(vsic93 < 4010, 1, 0)) %>% 
+         manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc",manu)
 
@@ -239,8 +239,10 @@ dn1419 <- bind_rows(dn[[1]], dn[[2]], dn[[3]], dn[[4]], dn[[5]], dn[[6]]) %>%
     fworkers_eoy = ifelse(fworkers_eoy > 1 | fworkers_eoy < 0, NA, fworkers_eoy),
     wage = ifelse(is.na(wage), 0, wage),    
     wage = ifelse(n_workers == 0 & wage == 0, NA, wage),
-    treated = ifelse(is.na(treated) & manu == 1, 0, treated),
-    treated17 = ifelse(is.na(treated17) & manu == 1, 0, treated17)
+    treated = ifelse(is.na(treated), 1, treated),
+    treated17 = ifelse(is.na(treated17), 1, treated17)
+    # treated = ifelse(is.na(treated) & manu == 1, 0, treated),
+    # treated17 = ifelse(is.na(treated17) & manu == 1, 0, treated17)
     ) %>% 
   select(-c("ma_thue2", "vsic93")) %>%
   distinct() %>% 
