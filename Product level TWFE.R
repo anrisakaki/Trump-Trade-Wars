@@ -8,23 +8,29 @@ dn1419 <- dn1419 %>%
 
 # event studies 
 
-iplot(list(
-  feols(log(wage) ~ i(ttt, treated17, -1)| id + year,
-            dn1419),
-  feols(log(wage) ~ sunab(first_treated, year)| id + year,
-        dn1419)), main = "Effect on labour cost")
+iplot(feols(log(wage) ~ i(ttt, treated17, -1)| id + year,
+            dn1419), main = "Effect on labour cost")
 
-iplot(list(
-  feols(n_workers ~ i(ttt, treated, -1)| id + year,
-        dn1419),
-  feols(n_workers ~ sunab(first_treated, year)| id + year,
-        dn1419)), main = "Effect on firm size")
+iplot(feols(log(wage) ~ i(ttt, treated17, -1)| id + year,
+            subset(dn1419, manu == 1)), main = "Effect on labour cost")
 
-iplot(list(
-  feols(fworkers ~ i(ttt, treated17, -1)| id + year,
-        dn1419),
-  feols(fworkers ~ sunab(first_treated, year)| id + year,
-        dn1419)), main = "Effect on share of female workers")
+iplot(feols(log(n_workers) ~ i(ttt, treated17, -1)| id + year,
+            dn1419), main = "Effect on firm size")
+
+iplot(feols(log(n_workers) ~ i(ttt, treated17, -1)| id + year,
+            subset(dn1419, manu == 1)), main = "Effect on firm size")
+
+iplot(feols(fworkers ~ i(ttt, treated17, -1)| id + year,
+            dn1419), main = "Effect on share of \nfemale workers")
+
+iplot(feols(fworkers ~ i(ttt, treated17, -1)| id + year,
+            subset(dn1419, manu == 1)), main = "Effect on share of \nfemale workers")
+
+iplot(feols(export ~ i(ttt, treated, -1)| id + year,
+            dn1419), main = "Effect on exporting")
+
+iplot(feols(export ~ i(ttt, treated, -1)| id + year,
+            subset(dn1419, manu == 1)), main = "Effect on exporting")
 
 
 # switching to making new products and entering / exiting 
