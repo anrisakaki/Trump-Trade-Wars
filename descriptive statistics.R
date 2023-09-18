@@ -7,7 +7,7 @@ yearly_avg <- dn1419 %>%
             avg_fshare = mean(fworkers_eoy, na.rm = T)) %>% 
   filter(!is.na(treated))
 
-ggplot(yearly_avg, aes(x = year, y = (avg_wage), colour = as.factor(treated))) +
+ggplot(yearly_avg, aes(x = year, y = log(avg_wage), colour = as.factor(treated))) +
   geom_line(size = 1.2) +
   scale_x_continuous(breaks=seq(2014,2019,1)) +
   labs(x = "Year",
