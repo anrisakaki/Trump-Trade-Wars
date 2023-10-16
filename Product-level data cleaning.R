@@ -33,32 +33,15 @@ masp_hs8 <- masp_hs8 %>%
 
 write_dta(masp_hs8, "masp_hs8.dta")
 
+# List HS8 treated products and first treated year 
 hs8_trump <- us_tariffs %>% 
   filter(country == "CHINA") %>% 
   mutate(HS8 = substr(hs10, 1, 8),
-         treated = ifelse(tariff_max > 0, 1, 0)) %>% 
-  select(year, HS8, treated, tariff_max, tariff_scaled) %>% 
-  distinct()
-
-hs8_trump_18 <- us_tariffs %>% 
-  filter(country == "CHINA" & year == 2018) %>% 
-  mutate(HS8 = substr(hs10, 1, 8),
-         treated = ifelse(tariff_max > 0, 1, 0)) %>% 
-  select(year, HS8, treated, tariff_max, tariff_scaled) %>% 
-  distinct()
-
-hs8_trump_19 <- us_tariffs %>% 
-  filter(country == "CHINA" & year == 2019) %>% 
-  mutate(HS8 = substr(hs10, 1, 8),
-         treated = ifelse(tariff_max > 0, 1, 0)) %>% 
-  select(year, HS8, treated, tariff_max, tariff_scaled) %>% 
-  distinct()
-
-willbe_treated <- hs8_trump %>% 
-  filter (treated == 1) %>% 
-  select(HS8, treated) %>% 
-  distinct() %>% 
-  rename(willbe_treated = treated)
+         treated = ifelse(tariff_max > 0, 1, 0),
+         first_treated = ifelse(effective_mdate < 716, 2018, 2019)) %>% 
+  select(first_treated, HS8, treated, tariff_max, tariff_scaled) %>% 
+  distinct() %>%
+  filter(treated == 1)
 
 #####################
 # CLEANING SP FILES #
@@ -101,47 +84,16 @@ for(i in sp_1419){
   
   assign(i, left_join(get(i), masp_hs8, by = "masp"))
   
-  assign(i, left_join(get(i), willbe_treated, by = "HS8"))
+  assign(i, left_join(get(i), hs8_trump, by = "HS8"))
+  
+  assign(i, get(i) %>% 
+           mutate(treated = ifelse(is.na(treated), 0 , treated)) %>% 
+           group_by(ma_thue) %>% 
+           # prod_treated = 1 if firm i produces treated products in year t 
+           mutate(prod_treated = ifelse(any(treated == 1), 1, 0)))
   
 }
 
+# Dataframe which gives the firms which were created treated products in year t
 
-SP_2018 <- left_join(SP_2018, hs8_trump_18, by = c("HS8", "year"))
-SP_2019 <- left_join(SP_2019, hs8_trump_19, by = c("HS8", "year"))
-
-sp1419 <- bind_rows(SP_2014, SP_2015, SP_2016, SP_2017, SP_2018, SP_2019) %>% 
-  mutate(willbe_treated = ifelse(is.na(willbe_treated), 0, willbe_treated),
-         treated = ifelse(is.na(treated), 0, treated)) %>% 
-  select(-"masp") %>% 
-  distinct()
-
-#####################################
-# CREATING DATASET OF TREATED FIRMS #
-#####################################
-
-# firms are considered treated if they produce treated products 
-
-dataframes_list <- list(
-  SP_2014,
-  SP_2015,
-  SP_2016,
-  SP_2017,
-  SP_2018,
-  SP_2019
-)
-
-treated_firms <- list()
-
-for (i in 1:length(dataframes_list)) {
-  df <- dataframes_list[[i]]
-  result <- df %>%
-    group_by(ma_thue) %>%
-    mutate(willbe_treated = ifelse(is.na(willbe_treated), 0, willbe_treated)) %>% 
-    summarise(treated = sum(willbe_treated)) %>% 
-    mutate(treated = ifelse(treated > 1, 1, 0))
-  
-  # Append the result to the results list
-  treated_firms[[i]] <- result
-}
-
-treated_17 <- treated_firms[[4]] %>% rename(treated17 = treated)
+sp1419 <- bind_rows(SP_2014, SP_2015, SP_2016, SP_2017, SP_2018, SP_2019)
