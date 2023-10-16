@@ -97,3 +97,8 @@ for(i in sp_1419){
 # Dataframe which gives the firms which were created treated products in year t
 
 sp1419 <- bind_rows(SP_2014, SP_2015, SP_2016, SP_2017, SP_2018, SP_2019)
+
+long_questionnaire <- sp1419 %>%
+  select(ma_thue, year, prod_treated) %>% 
+  mutate(long = 1) %>% 
+  distinct()
