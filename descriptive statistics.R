@@ -7,6 +7,11 @@ yearly_avg <- dn1419 %>%
             avg_fshare = mean(fworkers_eoy, na.rm = T)) %>% 
   filter(!is.na(treated))
 
+summary_df <- dn1419 %>%
+  filter(manu == 1) %>% 
+  group_by(year) %>%
+  summarise(share_treated = mean(treated, na.rm = T))
+
 ggplot(yearly_avg, aes(x = year, y = log(avg_wage), colour = as.factor(treated))) +
   geom_line(size = 1.2) +
   scale_x_continuous(breaks=seq(2014,2019,1)) +
