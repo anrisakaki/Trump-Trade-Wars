@@ -57,9 +57,6 @@ dn14 <- DN_2014 %>%
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", export, exp_value, manu)
 
-dn14 <- list(dn14, treated_17, treated_16) %>% 
-  reduce(full_join, by = "ma_thue")
-
 dn15 <- DN_2015 %>% 
   rename(n_workers = tsld,
          n_fworkers = tsldnu,
@@ -77,9 +74,6 @@ dn15 <- DN_2015 %>%
          manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", export, exp_value, manu)
-
-dn15 <- list(dn15, treated_17, treated_16) %>% 
-  reduce(full_join, by = "ma_thue")
 
 dn_16fdi <- DN_2016_fdi %>% 
   mutate(FDI_oc = nvpd1,
@@ -103,9 +97,6 @@ dn16 <- DN_2016 %>%
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc", manu)
 
-dn16 <- list(dn16, treated_17, treated_16) %>% 
-  reduce(full_join, by = "ma_thue")
-
 dn17 <- DN_2017 %>% 
   rename(n_workers = tsld,
          n_fworkers = tsldnu,
@@ -123,9 +114,6 @@ dn17 <- DN_2017 %>%
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc", manu)
 
-dn17 <- list(dn17, treated_17, treated_16) %>% 
-  reduce(full_join, by = "ma_thue")
-
 dn18 <- DN_2018 %>% 
   rename(n_workers = tsld,
          n_fworkers = tsldnu,
@@ -142,9 +130,6 @@ dn18 <- DN_2018 %>%
          manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", ma_thue2, "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc", manu)
-
-dn18 <- list(dn18, treated_17, treated_16) %>% 
-  reduce(full_join, by = "ma_thue")
 
 dn19_fdi <- DN_2019_fdi %>% 
   rename(FDI_oc = manuoc) %>% 
@@ -173,9 +158,6 @@ dn19 <- DN_2019 %>%
          manu = ifelse(vsic93 < 4010 & vsic93 > 500, 1, 0)) %>% 
   select("year", "vsic93", "tinh", "huyen", "xa", "ma_thue", "lhdn", "n_workers", "n_fworkers", "n_workers_eoy", "n_fworkers_eoy", "n_informal",
          "wage", "net_turnover", "pretax_profit", "FDI_share", "FDI_oc",manu)
-
-dn19 <- list(dn19, treated_17, treated_16) %>% 
-  reduce(full_join, by = "ma_thue")
 
 ###################################
 # COMPILING INTO SINGLE DATAFRAME #
@@ -241,15 +223,6 @@ dn1419 <- bind_rows(dn[[1]], dn[[2]], dn[[3]], dn[[4]], dn[[5]], dn[[6]]) %>%
   distinct() %>% 
   select(id, year, isic3, everything())
 
-dn1419 <- left_join(dn1419, sp1419, by = c("year", "ma_thue"))
-
-dn1419 <- left_join(dn1419, willbe_treated, by = "ma_thue") %>% 
-  mutate(ttt = year - first_treated,
-         china_fdi = ifelse(FDI_oc == "CN", 1, 0))
-
-dn1419_balanced <- dn1419 %>%
-  group_by(id) %>%
-  filter(all(2014:2019 %in% year))
-
-write_dta(dn1419, "dn1419.dta")
-save(dn1419, file = "dn1419.rda")
+dn1419 <- left_join(dn1419, long_questionnaire, by = c("ma_thue", "year")) %>% 
+  rename(long_q = long) %>% 
+  mutate(long_q = ifelse(is.na(long_q), 0, long_q))
