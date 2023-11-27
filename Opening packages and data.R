@@ -73,12 +73,12 @@ TL_2018 <- TL[[2]]
 SP <- list.files(pattern = "sp(.*)dta$")
 SP <- lapply(SP, read_dta)
 
-SP_2014 <- SP[[3]]
-SP_2015 <- SP[[4]]
-SP_2016 <- SP[[5]]
-SP_2017 <- SP[[6]]
-SP_2018 <- SP[[7]]
-SP_2019 <- SP[[8]]
+SP_2014 <- SP[[4]]
+SP_2015 <- SP[[5]]
+SP_2016 <- SP[[6]]
+SP_2017 <- SP[[7]]
+SP_2018 <- SP[[8]]
+SP_2019 <- SP[[9]]
 
 hs10_trump <- read_dta(file = "did10dig_year.dta")
 
