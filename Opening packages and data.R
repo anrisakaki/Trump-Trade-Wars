@@ -44,6 +44,8 @@ DN_2019 <- DN[[8]]
 DN_2019a <- DN[[9]]
 DN_2019_fdi <- DN[[10]]
 
+dn1419 <- read_dta(file = "firm_empl.dta")
+
 # Loading export data files 
 
 HH <- list.files(pattern = "hh(.*)dta$")
@@ -81,6 +83,7 @@ SP_2018 <- SP[[8]]
 SP_2019 <- SP[[9]]
 
 hs10_trump <- read_dta(file = "did10dig_year.dta")
+services <- read.csv("services_masp.csv")
 
 # US tariffs 
 us_tariffs <- read_dta(file = "us_import_tariffs.dta")
