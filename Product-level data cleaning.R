@@ -30,8 +30,10 @@ masp_hs6 <- masp_hs8 %>%
   )) %>% 
   mutate(HS8 = str_pad(HS8, width = 8, side = "left", pad = "0"),
          masp = str_pad(masp, width = 8, side = "left", pad = "0")) %>% 
-  mutate(HS6 = substr(HS8, 1, 6)) %>% 
-  select(HS6, masp) %>% 
+  mutate(HS6 = substr(HS8, 1, 6),
+         cap6 = substr(masp, 1, 6),
+         cap5 = substr(masp, 1, 5)) %>% 
+  select(cap5, cap6, HS6, masp) %>% 
   distinct()
 
 write_dta(masp_hs6, "masp_hs6.dta")
@@ -49,6 +51,35 @@ hs6_trump <- us_tariffs %>%
             tariff_scaled = max(tariff_scaled)) %>% 
   mutate(treated = 1) %>% 
   ungroup()
+
+hs5_trump <- us_tariffs %>% 
+  filter(country == "CHINA") %>% 
+  mutate(HS5 = substr(hs10, 1, 5),
+         treated = ifelse(tariff_max > 0, 1, 0)) %>% 
+  filter(treated == 1) %>% 
+  select(HS5, treated)
+
+cap5_hs5 <- masp_hs6 %>% select(cap5, HS6) %>% 
+  mutate(HS5 = substr(HS6, 1, 5)) %>% 
+  select(cap5, HS5) %>% 
+  distinct()
+
+cap5_hs5 <- left_join(cap5_hs5, hs5_trump, by = "HS5") %>% distinct()
+
+# Services 
+
+services <- services %>%
+  filter(str_detect(Description, "Dịch vụ"),
+         !is.na(masp8)) %>% 
+  mutate(service = 1,
+         masp8 = str_pad(masp8, width = 8, side = "left", pad = "0"),
+         cap5 = substr(masp8, 1, 5)) %>% 
+  select(cap5, everything())
+
+services <- left_join(services, cap5_hs5, by = "cap5") %>% distinct() %>% 
+  select(masp8, service, treated) %>% 
+  rename(treated_service = treated,
+         masp = masp8)
 
 #####################
 # CLEANING SP FILES #
@@ -91,6 +122,8 @@ for(i in sp_1419){
   
   assign(i, left_join(get(i), hs6_trump, by = "HS6"))
   
+  assign(i, left_join(get(i), services, by = "masp"))
+  
   assign(i, get(i) %>% 
            mutate(treated = ifelse(is.na(treated), 0 , treated)))
   
@@ -101,10 +134,35 @@ for(i in sp_1419){
 sp1419 <- bind_rows(SP_2014, SP_2015, SP_2016, SP_2017, SP_2018, SP_2019) %>% 
   group_by(ma_thue) %>% 
   mutate(
-    # prod_treated = 1 if firm i produces treated products in any year before 2018
+    # prod_treated = 1 if firm produces treated products in any year before 2018
     prod_treated = ifelse(any(treated == 1 & year < 2018), 1, 0),
-    # prod_treated17 if firm i produces treated products in the year immediately preceding the first wave of tariff hikes (i.e. 2017)
-    prod_treated17 = ifelse(any(treated == 1 & year == 2017), 1, 0))  
+    # prod_treated17 = 1 if firm i produces treated products in the year immediately preceding the first wave of tariff hikes (i.e. 2017)
+    prod_treated17 = ifelse(any(treated == 1 & year == 2017), 1, 0),
+    treated_service = ifelse(any(treated_service == 1 & year < 2018), 1, 0),
+    treated_service17 = ifelse(any(treated_service == 1 & year == 2017), 1, 0))
+
+sp1419_clean <- sp1419 %>% 
+  select(year, ma_thue, prod_treated, prod_treated17, treated_service, treated_service17) %>% 
+  distinct() %>% 
+  mutate(treated_service = ifelse(is.na(treated_service), 0, treated_service),
+         treated_service17 = ifelse(is.na(treated_service17), 0, treated_service17))
+
+withinfirm <- sp1419 %>% 
+  group_by(ma_thue, year) %>% 
+  summarise(
+    total_products = n(),
+    treated_products = sum(treated == 1)
+  ) %>% 
+  mutate(share_treated = treated_products/total_products)
+
+productlevel_firms <- sp1419 %>%
+  mutate(treated = ifelse(any(treated == 1), 1, 0)) %>% 
+  select(ma_thue, year, treated) %>% 
+  distinct() %>% 
+  group_by(year) %>% 
+  summarise(total_firms = n(),
+            treated_firms = sum(treated == 1)) %>% 
+  mutate(share = treated_firms/total_firms)
 
 long_questionnaire <- sp1419 %>%
   select(ma_thue, year, prod_treated) %>% 
